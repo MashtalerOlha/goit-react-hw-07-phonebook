@@ -2,12 +2,11 @@ import { useState } from 'react';
 import { SearchCard, Lable, Button } from './Form.Styled';
 import { nanoid } from 'nanoid';
 import toast from 'react-hot-toast';
-import { useDispatch, useSelector } from 'react-redux';
-import { addContact, getContacts } from 'components/redux/contactsSlice';
+import { useGetContactsQuery, useAddContactMutation } from 'components/redux/contactApi';
 
 export function Form() {
-  const contacts = useSelector(getContacts);
-  const dispatch = useDispatch();
+  const { data: contacts } = useGetContactsQuery();
+  const [addContact] = useAddContactMutation();
 
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
@@ -27,7 +26,7 @@ export function Form() {
     }
   };
 
-  const handleSubmit = e => {
+  const handleSubmit =  e => {
     e.preventDefault();
 
     const newContact = {
@@ -36,16 +35,16 @@ export function Form() {
       number,
     };
 
+    const formReset = () => {
+      setName('');
+      setNumber('');
+    };
+
     contacts.some(contact => contact.name.toLowerCase() === name.toLowerCase())
       ? toast.error(`${name} is already in contacts!`)
-      : dispatch(addContact(newContact));
-
+      :  addContact(newContact);
+      toast.success(`${name} is added!`)
     formReset();
-  };
-
-  const formReset = () => {
-    setName('');
-    setNumber('');
   };
 
   return (

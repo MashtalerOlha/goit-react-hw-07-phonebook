@@ -1,40 +1,44 @@
-import { useDispatch, useSelector } from 'react-redux';
 import { ContactCard, Contact, Button } from './ContactList.Styled';
 import {
-  getFilter,
-  getContacts,
-  deleteContact,
-} from 'components/redux/contactsSlice';
+  useDeleteContactMutation,
+  useGetContactsQuery,
+} from 'components/redux/contactApi';
+import { useSelector } from 'react-redux';
 
 export const ContactList = () => {
-  const filter = useSelector(getFilter);
-  const contacts = useSelector(getContacts);
 
-  const dispatch = useDispatch();
+  const { data: contacts } = useGetContactsQuery();
+  const [deleteContact] = useDeleteContactMutation();
+  const deleteOneContact = contactId => deleteContact(contactId);
 
-  const handeDeleteContact = newContactId => {
-    return dispatch(deleteContact(newContactId));
-  };
+
+  const filter = useSelector(state => state.filter);
 
   const getVisibleContacts = () => {
     const normalizedFilter = filter.toLowerCase();
-    return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(normalizedFilter)
-    );
-  };
 
+    if (contacts) {
+      return contacts.filter(({ name }) =>
+        name.toLowerCase().includes(normalizedFilter)
+      );
+    }
+  };
   const visibleContacts = getVisibleContacts();
 
   return (
     <ContactCard>
-      {visibleContacts.map(({ id, name, number }) => (
-        <Contact key={id}>
-          {name}: {number}
-          <Button type="button" onClick={() => handeDeleteContact(id)}>
-            Delete
-          </Button>
-        </Contact>
-      ))}
+      { contacts && visibleContacts.map(({ id, name, phone }) => {
+          return (
+            <Contact key={id}>
+              <p>
+              <span>{name}</span>
+              <span>{phone}</span>
+            </p>
+            <Button type="button" onClick={() => deleteOneContact(id)}> delete
+            </Button>
+            </Contact>
+          );
+        })}
     </ContactCard>
   );
 };
