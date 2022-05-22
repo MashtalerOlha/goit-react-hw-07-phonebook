@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { SearchCard, Lable, Button } from './Form.Styled';
 import { nanoid } from 'nanoid';
 import toast from 'react-hot-toast';
-import { useGetContactsQuery, useAddContactMutation } from 'components/redux/contactApi';
+import {
+  useGetContactsQuery,
+  useAddContactMutation,
+} from 'components/redux/contactApi';
 
 export function Form() {
   const { data: contacts } = useGetContactsQuery();
@@ -26,7 +29,7 @@ export function Form() {
     }
   };
 
-  const handleSubmit =  e => {
+  const handleSubmit = e => {
     e.preventDefault();
 
     const newContact = {
@@ -40,13 +43,17 @@ export function Form() {
       setNumber('');
     };
 
-    contacts.some(contact => contact.name.toLowerCase() === name.toLowerCase())
-      ? toast.error(`${name} is already in contacts!`)
-      :  addContact(newContact);
-      toast.success(`${name} is added!`)
+    if (
+      contacts.some(
+        contact => contact.name.toLowerCase() === name.toLowerCase()
+      )
+    ) {
+      return toast.error(`${name} is already in contacts!`);
+    }
+    toast.success(`${name} is added!`);
+    addContact(newContact);
     formReset();
   };
-
   return (
     <form autoComplete="off" onSubmit={handleSubmit}>
       <Lable htmlFor="name">Name</Lable>
